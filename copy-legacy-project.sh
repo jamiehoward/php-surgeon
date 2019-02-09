@@ -24,46 +24,28 @@ function copyAllDependencies() {
 
 function realPath() {
 	DIR=`dirname $1`
-	normalDir="`cd $DIR;pwd`"
-	echo $normalDir/$(basename $1)
+	REALPATH="`cd $DIR;pwd`"
+	echo $REALPATH/$(basename $1)
 }
 
-DEPENDENCIES='dependencies.list'
-rm $DEPENDENCIES
-
 function findDependencies() {
-	CACHE_FILE=./cache/files.cache
+	FOUND=`grep 'include(\|include_once(\|require(\|require_once(' $1 | grep -v '/\*' | grep -v 'require_once($\|require($\|include_once($\|include($' | sed -e "s/.*require('//g;s/.*require_once('//g;s/.*require(\"//g;s/.*require_once(\"//g;s/.*include('//g;s/.*include_once('//g;s/.*include(\"//g;s/.*include_once(\"//g;s/').*//g;s/\").*//g" | sort -u`
 
-	rm $CACHE_FILE
-
-	grep 'include(\|include_once(\|require(\|require_once(' $1 | grep -v '/\*' | grep -v 'require_once($\|require($\|include_once($\|include($' > $CACHE_FILE
-
-	# Remove requires
-	sed -i -e "s/.*require('//g;s/.*require_once('//g;s/.*require(\"//g;s/.*require_once(\"//g;
-		" $CACHE_FILE
-
-	# Remove includes
-	sed -i -e "s/.*include('//g;s/.*include_once('//g;s/.*include(\"//g;s/.*include_once(\"//g;
-		" $CACHE_FILE
-
-	# Remove trailing parentheses
-	sed -i -e "s/').*//g;s/\").*//g" $CACHE_FILE
-
-	# Prepend the directory
-	RELDIR=`dirname $1`
-
-	while read FILE;do
-		realPath $RELDIR/$FILE >> $DEPENDENCIES
-	done < $CACHE_FILE
+	for FILE in $FOUND; do
+		RELDIR=`dirname $1`
+		realPath $RELDIR/$FILE
+	done
 }
 
 # Get the dependencies for the root file
-findDependencies $SOURCE_FILE
+DEPENDENCIES=`findDependencies $SOURCE_FILE`
 
-while read FILE; do
-	findDependencies $FILE
-done < $DEPENDENCIES
+echo $DEPENDENCIES > dependencies.list
+
+for DEPENDENCY in $DEPENDENCIES; do
+	findDependencies $DEPENDENCY >> dependencies.list
+done
 
 # Remove any duplicates
-sort -u $DEPENDENCIES -o $DEPENDENCIES
+sort -u dependencies.list -o dependencies.list
 # rm -r cache/
