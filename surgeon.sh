@@ -1,5 +1,6 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SOURCE_FILE=$1
 DESTINATION_PROJECT=$2
 HISTORY_FILE=./.cache/history.list
@@ -103,7 +104,7 @@ copyAllDependencies
 
 
 # Clean up the directory structure
-ROOT_DIR=$(/Users/jamie/Code/scripts/surgeon/dirCleanup.sh $DESTINATION_PROJECT)
+ROOT_DIR=$($DIR/dirCleanup.sh $DESTINATION_PROJECT)
 
 FILE_CACHE=./.cache/file-cache/
 mv $ROOT_DIR $FILE_CACHE
