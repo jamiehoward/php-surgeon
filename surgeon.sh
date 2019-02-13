@@ -2,16 +2,16 @@
 
 SOURCE_FILE=$1
 DESTINATION_PROJECT=$2
-HISTORY_FILE=./cache/history.list
-SEARCH_FILE=./cache/search.list
+HISTORY_FILE=./.cache/history.list
+SEARCH_FILE=./.cache/search.list
 
 # Initialize the project
 if [ ! -e $DESTINATION_PROJECT ]; then
 	mkdir $DESTINATION_PROJECT
 fi
 
-if [ ! -e './cache/' ]; then
-	mkdir cache
+if [ ! -e './.cache/' ]; then
+	mkdir ./.cache
 fi
 
 if [ -e $HISTORY_FILE ]; then
@@ -60,7 +60,7 @@ function markAsSearched() {
 }
 
 function findDependencies() {
-	FOUND_LIST=./cache/found.list
+	FOUND_LIST=./.cache/found.list
 	if [ ! -e $1 ]; then
 		# markAsSearched $1
 		return 1
@@ -90,7 +90,7 @@ function findDependencies() {
 }
 
 # Kick off the search by adding the specified file
-echo $1 > $SEARCH_FILE
+echo $SOURCE_FILE > $SEARCH_FILE
 
 # While there are still things to check, look through them
 while sitesRemainToBeSearched; do
@@ -100,3 +100,16 @@ while sitesRemainToBeSearched; do
 done
 
 copyAllDependencies
+
+
+# Clean up the directory structure
+ROOT_DIR=$(/Users/jamie/Code/scripts/surgeon/dirCleanup.sh $DESTINATION_PROJECT)
+
+FILE_CACHE=./.cache/file-cache/
+mv $ROOT_DIR $FILE_CACHE
+rm -rf $DESTINATION_PROJECT/*
+mv $FILE_CACHE/* $DESTINATION_PROJECT
+
+# Clean up process
+rm -r ./.cache
+
