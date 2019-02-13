@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SOURCE_FILE=$1
-DESTINATION_PROJECT=$(pwd)/$2
+DESTINATION_PROJECT=$2
 HISTORY_FILE=./cache/history.list
 SEARCH_FILE=./cache/search.list
 
@@ -14,8 +14,16 @@ if [ ! -e './cache/' ]; then
 	mkdir cache
 fi
 
-rm $HISTORY_FILE && touch $HISTORY_FILE
-rm $SEARCH_FILE && touch $SEARCH_FILE
+if [ -e $HISTORY_FILE ]; then
+	rm $HISTORY_FILE
+fi
+
+if [ -e $SEARCH_FILE ]; then
+	rm $SEARCH_FILE
+fi
+
+touch $HISTORY_FILE
+touch $SEARCH_FILE
 
 function copyAllDependencies() {
 	RELDIR=`dirname $SOURCE_FILE`
