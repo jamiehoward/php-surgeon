@@ -3,16 +3,17 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SOURCE_FILE=$1
 DESTINATION_PROJECT=$2
-HISTORY_FILE=./.cache/history.list
-SEARCH_FILE=./.cache/search.list
+CACHE_DIR=$DIR/.cache
+HISTORY_FILE=$CACHE_DIR/history.list
+SEARCH_FILE=$CACHE_DIR/search.list
 
 # Initialize the project
 if [ ! -e $DESTINATION_PROJECT ]; then
 	mkdir $DESTINATION_PROJECT
 fi
 
-if [ ! -e './.cache/' ]; then
-	mkdir ./.cache
+if [ ! -e $CACHE_DIR ]; then
+	mkdir $CACHE_DIR
 fi
 
 if [ -e $HISTORY_FILE ]; then
@@ -61,7 +62,7 @@ function markAsSearched() {
 }
 
 function findDependencies() {
-	FOUND_LIST=./.cache/found.list
+	FOUND_LIST=$CACHE_DIR/found.list
 	if [ ! -e $1 ]; then
 		# markAsSearched $1
 		return 1
@@ -106,11 +107,11 @@ copyAllDependencies
 # Clean up the directory structure
 ROOT_DIR=$($DIR/dirCleanup.sh $DESTINATION_PROJECT)
 
-FILE_CACHE=./.cache/file-cache/
+FILE_CACHE=$CACHE_DIR/file-cache/
 mv $ROOT_DIR $FILE_CACHE
 rm -rf $DESTINATION_PROJECT/*
 mv $FILE_CACHE/* $DESTINATION_PROJECT
 
 # Clean up process
-rm -r ./.cache
+rm -r $CACHE_DIR
 
